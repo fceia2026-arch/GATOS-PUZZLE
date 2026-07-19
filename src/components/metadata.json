@@ -1,0 +1,6 @@
+{
+  "name": "Gatitos en la Caja",
+  "description": "Un adorable rompecabezas de espacio donde debes acomodar gatos de diferentes formas dentro de una caja de cartón.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
