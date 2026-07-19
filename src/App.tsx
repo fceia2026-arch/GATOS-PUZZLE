@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LEVELS } from './data/levels';
 import { CatPiece as CatType, Coords, Level } from './types';
@@ -95,8 +95,37 @@ export default function App() {
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState<boolean>(false);
 
+  // Dynamic responsive window size state for auto-layout on mobile landscape
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const currentLevel = LEVELS[currentLevelIdx];
-  const CELL_SIZE = 60; // perfect responsive size in pixels
+  
+  const CELL_SIZE = useMemo(() => {
+    const isMobileLandscape = windowSize.width > windowSize.height && windowSize.height < 540;
+    const isSmallScreen = windowSize.width < 640;
+    
+    if (isMobileLandscape) {
+      return 44; // Compact size for horizontal mobile viewports to prevent vertical scroll
+    }
+    if (isSmallScreen) {
+      return 52; // Slightly smaller for standard mobile portrait
+    }
+    return 60; // Standard desktop size
+  }, [windowSize]);
 
   // 1. Load completed levels, settings, and sync with Supabase on mount
   useEffect(() => {
@@ -671,90 +700,93 @@ export default function App() {
       </div>
 
       {/* HEADER BAR */}
-      <header className="py-6 px-6 md:px-10 border-b border-art-border relative z-40 bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
+      <header className="py-4 md:py-6 px-4 md:px-10 border-b border-art-border relative z-40 bg-white shadow-sm landscape:py-2.5">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-4 md:gap-6 landscape:flex-row landscape:justify-between landscape:items-center">
           
           {/* Title Area */}
-          <div className="space-y-1.5 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-art-heading italic">
+          <div className="space-y-1 text-center md:text-left landscape:text-left landscape:space-y-0.5">
+            <h1 className="text-3xl md:text-5xl font-serif font-black tracking-tighter text-art-heading italic leading-none landscape:text-2xl">
               Gatitos en la Caja
             </h1>
-            <p className="text-xs uppercase tracking-[0.2em] font-sans font-black text-art-accent">
+            <p className="text-sm font-sans font-semibold text-art-accent/90 italic tracking-wide landscape:text-xs">
+              Para Laura
+            </p>
+            <p className="text-xs uppercase tracking-[0.2em] font-sans font-black text-art-accent/60 pt-0.5 landscape:hidden md:landscape:block">
               Nivel {currentLevel.id}: {currentLevel.name}
             </p>
           </div>
 
           {/* Right side stats & Actions */}
-          <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
-            <div className="flex gap-8 text-center sm:text-right">
+          <div className="flex flex-col sm:flex-row items-center gap-4 md:gap-8 landscape:flex-row landscape:gap-4">
+            <div className="flex gap-6 md:gap-8 text-center sm:text-right landscape:hidden md:landscape:flex">
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-sans font-black opacity-50 tracking-wider">Dificultad</span>
-                <span className="text-xl md:text-2xl font-serif font-bold italic text-art-heading">{currentLevel.difficulty}</span>
+                <span className="text-lg md:text-2xl font-serif font-bold italic text-art-heading">{currentLevel.difficulty}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase font-sans font-black opacity-50 tracking-wider">Comodidad</span>
-                <span className="text-xl md:text-2xl font-serif font-bold italic text-art-heading">
+                <span className="text-lg md:text-2xl font-serif font-bold italic text-art-heading">
                   {Math.round((placedCatsCount / totalCatsCount) * 100)}%
                 </span>
               </div>
             </div>
 
             {/* Interactive buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2">
               <button
                 onClick={handleOpenLeaderboard}
-                className="flex items-center gap-1.5 py-2 px-3 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer text-xs font-bold"
+                className="flex items-center gap-1 py-1.5 px-2.5 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer text-[11px] font-bold"
                 title="Clasificación global de michis"
                 id="leaderboard-btn"
               >
-                <Trophy size={14} className="text-amber-500 fill-amber-100" />
-                <span>Clasificación</span>
+                <Trophy size={13} className="text-amber-500 fill-amber-100" />
+                <span className="landscape:hidden sm:landscape:inline">Clasificación</span>
               </button>
 
               <button
                 onClick={() => { playClick(); setShowLevelSelector(true); }}
-                className="flex items-center gap-1.5 py-2 px-3.5 bg-art-accent hover:bg-art-accent/90 text-white rounded-xl font-sans text-xs font-bold shadow-sm transition-colors cursor-pointer border border-[#a6825d]"
+                className="flex items-center gap-1 py-1.5 px-3 bg-art-accent hover:bg-art-accent/90 text-white rounded-xl font-sans text-[11px] font-bold shadow-sm transition-colors cursor-pointer border border-[#a6825d]"
                 id="map-levels-btn"
               >
-                <Map size={14} />
+                <Map size={13} />
                 <span>Cajas</span>
               </button>
 
               <button
                 onClick={() => { playClick(); setShowSolutionModal(true); }}
-                className="flex items-center gap-1.5 py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl border border-amber-200 shadow-sm transition-colors cursor-pointer text-xs font-bold"
+                className="flex items-center gap-1 py-1.5 px-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl border border-amber-200 shadow-sm transition-colors cursor-pointer text-[11px] font-bold"
                 title="Ver la solución de esta caja"
                 id="solution-btn"
               >
-                <Sparkles size={14} className="text-amber-500 fill-amber-100 animate-pulse" />
+                <Sparkles size={13} className="text-amber-500 fill-amber-100 animate-pulse" />
                 <span>Solución</span>
               </button>
 
               <button
                 onClick={() => { playClick(); setShowHowToPlay(!showHowToPlay); }}
-                className="p-2 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
+                className="p-1.5 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
                 title="Cómo jugar"
                 id="instructions-btn"
               >
-                <HelpCircle size={16} />
+                <HelpCircle size={15} />
               </button>
 
               <button
                 onClick={handleToggleSound}
-                className="p-2 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
+                className="p-1.5 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
                 title={soundOn ? 'Silenciar' : 'Activar sonido'}
                 id="sound-toggle-btn"
               >
-                {soundOn ? <Volume2 size={16} /> : <VolumeX size={16} />}
+                {soundOn ? <Volume2 size={15} /> : <VolumeX size={15} />}
               </button>
 
               <button
                 onClick={handleResetLevel}
-                className="p-2 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
+                className="p-1.5 bg-white hover:bg-art-light text-art-text rounded-xl border border-art-border shadow-sm transition-colors cursor-pointer"
                 title="Reiniciar caja"
                 id="reset-level-btn"
               >
-                <RefreshCw size={16} />
+                <RefreshCw size={15} />
               </button>
             </div>
           </div>
@@ -763,7 +795,7 @@ export default function App() {
       </header>
 
       {/* LEVEL SWITCHER BAR */}
-      <div className="bg-art-light border-b border-art-border py-3 px-6 md:px-10 text-xs font-bold text-art-text/80 shadow-sm relative z-20">
+      <div className="bg-art-light border-b border-art-border py-2 px-4 md:py-3 md:px-10 text-xs font-bold text-art-text/80 shadow-sm relative z-20 landscape:py-1.5">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
@@ -796,14 +828,14 @@ export default function App() {
       </div>
 
       {/* MAIN GAME CONTAINER */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-8 items-start relative z-10">
+      <main className="flex-1 max-w-6xl w-full mx-auto p-4 md:p-8 flex flex-col landscape:flex-row lg:flex-row gap-4 md:gap-8 items-center landscape:items-start relative z-10 landscape:p-3">
         
         {/* LEFT COLUMN: GAMEPLAY ZONE (GRID & HOW-TO CARD) */}
-        <div className="flex-1 flex flex-col gap-6 justify-start items-center w-full">
+        <div className="flex-1 flex flex-col gap-6 landscape:gap-3 justify-start items-center w-full">
           
           {/* Level Info Header inside board */}
-          <div className="text-center max-w-lg mb-2">
-            <p className="text-sm font-serif font-medium text-art-text/95 leading-relaxed italic">
+          <div className="text-center max-w-lg mb-1 landscape:hidden md:landscape:block">
+            <p className="text-sm font-serif font-medium text-art-text/95 leading-relaxed italic landscape:text-xs">
               &ldquo;{currentLevel.description}&rdquo;
             </p>
           </div>
@@ -861,17 +893,17 @@ export default function App() {
           </div>
 
           {/* Mini Hint / Help bar */}
-          <div className="text-[11px] text-art-text/60 flex items-center gap-1.5 font-sans font-bold uppercase tracking-wider max-w-md text-center">
+          <div className="text-[11px] text-art-text/60 flex items-center gap-1.5 font-sans font-bold uppercase tracking-wider max-w-md text-center landscape:hidden">
             <Info size={12} className="flex-shrink-0" />
             <span>Haz un toque/clic rápido sobre un gatito para rotarlo 90° en cualquier momento.</span>
           </div>
         </div>
 
         {/* RIGHT COLUMN: INVENTORY & DETAILED HOW-TO PLAY */}
-        <div className="w-full lg:w-[380px] flex flex-col gap-6">
+        <div className="w-full landscape:w-[310px] lg:w-[380px] flex flex-col gap-6 landscape:gap-3 landscape:max-h-[calc(100vh-120px)] landscape:overflow-y-auto landscape:pr-1.5">
           
           {/* Mobile Tabs if space is tight */}
-          <div className="lg:hidden flex border-b border-art-border">
+          <div className="lg:hidden flex border-b border-art-border landscape:mb-1">
             <button
               onClick={() => setActiveTab('juego')}
               className={`flex-1 py-2.5 text-center font-sans font-black text-xs uppercase tracking-wider ${
@@ -909,7 +941,7 @@ export default function App() {
           {/* Tab Content B / Persistent instructions card on desktop */}
           <div className={`${activeTab === 'instrucciones' || showHowToPlay ? 'block' : 'hidden lg:block'}`}>
             {/* Objective & Instructions Card */}
-            <div className="bg-[#fff9f0] p-6 rounded-[32px] border border-[#f0e6d2] shadow-sm space-y-5">
+            <div className="bg-[#fff9f0] p-6 rounded-[32px] border border-[#f0e6d2] shadow-sm space-y-5 landscape:p-4 landscape:space-y-3">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] uppercase font-sans font-black opacity-50 tracking-wider">Objetivo</span>
@@ -976,7 +1008,7 @@ export default function App() {
             </div>
 
             {/* Supabase Profile Card */}
-            <div className="bg-[#fefaf4] p-5 rounded-[32px] border-2 border-dashed border-art-accent/20 space-y-4 shadow-sm mt-4">
+            <div className="bg-[#fefaf4] p-4 rounded-[32px] border-2 border-dashed border-art-accent/20 space-y-3 shadow-sm mt-4 landscape:mt-2.5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Cloud size={14} className={isSupabaseConnected ? "text-emerald-500 animate-pulse" : "text-art-accent/50"} />

@@ -89,42 +89,42 @@ export const GameGrid: React.FC<GameGridProps> = ({
   };
 
   return (
-    <div className="relative p-6 md:p-8 bg-art-beige rounded-3xl border-[12px] border-art-accent shadow-2xl overflow-visible max-w-full">
+    <div className="relative p-4 md:p-8 landscape:p-3 bg-art-beige rounded-3xl border-[12px] landscape:border-[6px] border-art-accent shadow-2xl overflow-visible max-w-full">
       {/* Visual cardboard folds and flaps for full carton box effect! */}
       {/* Top Flap */}
       <div
-        className="absolute -top-12 left-8 right-8 h-12 bg-art-accent/80 rounded-t-xl border-t-2 border-x-2 border-art-accent origin-bottom transition-all duration-300 shadow-sm"
+        className="absolute -top-12 left-8 right-8 h-12 bg-art-accent/80 rounded-t-xl border-t-2 border-x-2 border-art-accent origin-bottom transition-all duration-300 shadow-sm landscape:hidden"
         style={{ transform: 'perspective(400px) rotateX(25deg)' }}
       />
       {/* Left Flap */}
       <div
-        className="absolute top-8 bottom-8 -left-12 w-12 bg-art-accent/80 rounded-l-xl border-l-2 border-y-2 border-art-accent origin-right transition-all duration-300 shadow-sm"
+        className="absolute top-8 bottom-8 -left-12 w-12 bg-art-accent/80 rounded-l-xl border-l-2 border-y-2 border-art-accent origin-right transition-all duration-300 shadow-sm landscape:hidden"
         style={{ transform: 'perspective(400px) rotateY(-25deg)' }}
       />
       {/* Right Flap */}
       <div
-        className="absolute top-8 bottom-8 -right-12 w-12 bg-art-accent/80 rounded-r-xl border-r-2 border-y-2 border-art-accent origin-left transition-all duration-300 shadow-sm"
+        className="absolute top-8 bottom-8 -right-12 w-12 bg-art-accent/80 rounded-r-xl border-r-2 border-y-2 border-art-accent origin-left transition-all duration-300 shadow-sm landscape:hidden"
         style={{ transform: 'perspective(400px) rotateY(25deg)' }}
       />
       {/* Bottom Flap */}
       <div
-        className="absolute -bottom-12 left-8 right-8 h-12 bg-art-accent/80 rounded-b-xl border-b-2 border-x-2 border-art-accent origin-top transition-all duration-300 shadow-sm"
+        className="absolute -bottom-12 left-8 right-8 h-12 bg-art-accent/80 rounded-b-xl border-b-2 border-x-2 border-art-accent origin-top transition-all duration-300 shadow-sm landscape:hidden"
         style={{ transform: 'perspective(400px) rotateX(-25deg)' }}
       />
 
       {/* Slanted box badge */}
-      <div className="absolute -top-5 left-8 bg-art-accent text-white px-4 py-1 text-xs uppercase tracking-widest font-sans rounded-full rotate-[-2deg] shadow-lg z-10">
+      <div className="absolute -top-5 left-8 landscape:-top-3 landscape:left-4 bg-art-accent text-white px-4 py-1 landscape:py-0.5 landscape:text-[9px] uppercase tracking-widest font-sans rounded-full rotate-[-2deg] shadow-lg z-10">
         Caja de Cartón Estándar
       </div>
 
       {/* Box Inner (Darker, recessed container) */}
-      <div className="relative bg-[#d3c2a5] p-4 rounded-2xl shadow-[inner_0px_6px_14px_rgba(0,0,0,0.15)] border-2 border-art-accent/30">
+      <div className="relative bg-[#d3c2a5] p-4 landscape:p-2 rounded-2xl shadow-[inner_0px_6px_14px_rgba(0,0,0,0.15)] border-2 border-art-accent/30">
         
         {/* Playful box stamps and text */}
-        <div className="absolute -top-3.5 right-6 bg-[#ba9470] text-white font-sans text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded shadow-md border border-[#a6825d] z-10 pointer-events-none select-none">
+        <div className="absolute -top-3.5 right-6 bg-[#ba9470] text-white font-sans text-[9px] uppercase font-bold tracking-widest px-2.5 py-0.5 rounded shadow-md border border-[#a6825d] z-10 pointer-events-none select-none landscape:hidden">
           ♥ Contiene Ternura
         </div>
-        <div className="absolute -bottom-3.5 left-6 bg-[#2d241e] text-[#fdfaf6] font-sans text-[9px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded shadow border border-black z-10 pointer-events-none select-none">
+        <div className="absolute -bottom-3.5 left-6 bg-[#2d241e] text-[#fdfaf6] font-sans text-[9px] uppercase font-semibold tracking-wider px-2 py-0.5 rounded shadow border border-black z-10 pointer-events-none select-none landscape:hidden">
           Manejar Con Cuidado
         </div>
 

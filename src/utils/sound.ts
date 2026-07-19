@@ -27,93 +27,39 @@ export const setSoundEnabled = (enabled: boolean) => {
 
 export const isSoundEnabled = () => soundEnabled;
 
-// Play a cute "meow" synthesizer sound
+// Play a real cat "meow" sound recording
 export const playMeow = (type: 'cute' | 'derp' | 'sleepy' | 'happy' = 'cute') => {
-  const ctx = getAudioContext();
-  if (!ctx) return;
+  if (!soundEnabled) return;
+
+  let rate = 1.0;
+  if (type === 'happy') rate = 1.25;
+  else if (type === 'sleepy') rate = 0.82;
+  else if (type === 'derp') rate = 0.72;
 
   try {
-    const osc = ctx.createOscillator();
-    const osc2 = ctx.createOscillator();
-    const filter = ctx.createBiquadFilter();
-    const gain = ctx.createGain();
+    // Play using native HTML5 Audio for maximum compatibility and realistic sound
+    const audio = new Audio('/sounds/meow_cute.wav');
+    audio.playbackRate = rate;
+    audio.volume = 0.45;
 
-    osc.connect(filter);
-    osc2.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
+    // Set up a fallback just in case the absolute path fails in custom subfolder deployments
+    audio.addEventListener('error', () => {
+      console.warn("Local audio failed, falling back to CDN...");
+      try {
+        const fallbackAudio = new Audio('https://freewavesamples.com/files/Cat-Meow.wav');
+        fallbackAudio.playbackRate = rate;
+        fallbackAudio.volume = 0.45;
+        fallbackAudio.play().catch(e => console.warn("CDN audio playback failed:", e));
+      } catch (err) {
+        console.error("Fallback audio failed to construct:", err);
+      }
+    });
 
-    const now = ctx.currentTime;
-
-    // Set up resonant bandpass filter to create a feline vowel ("m-e-o-w")
-    filter.type = 'bandpass';
-    filter.Q.value = 1.8; // Gives it a nasal, meow-like vocal resonance
-
-    // Different meow characteristics based on personality!
-    let startFreq = 400;
-    let midFreq = 580;
-    let endFreq = 700;
-    let duration = 0.25;
-    let startFilterFreq = 1100;
-    let endFilterFreq = 600;
-
-    if (type === 'derp') {
-      startFreq = 300;
-      midFreq = 520;
-      endFreq = 420; // weird pitch bend down
-      duration = 0.35;
-      osc.type = 'sawtooth';
-      osc2.type = 'triangle';
-      startFilterFreq = 900;
-      endFilterFreq = 450;
-    } else if (type === 'sleepy') {
-      startFreq = 250;
-      midFreq = 320;
-      endFreq = 350;
-      duration = 0.4;
-      osc.type = 'sine';
-      osc2.type = 'triangle';
-      startFilterFreq = 800;
-      endFilterFreq = 500;
-    } else if (type === 'happy') {
-      startFreq = 450;
-      midFreq = 620;
-      endFreq = 800;
-      duration = 0.2;
-      osc.type = 'triangle';
-      osc2.type = 'sine';
-      startFilterFreq = 1300;
-      endFilterFreq = 700;
-    } else { // cute / normal
-      osc.type = 'triangle';
-      osc2.type = 'sine';
-    }
-
-    // Set up oscillator frequencies
-    osc.frequency.setValueAtTime(startFreq, now);
-    osc.frequency.linearRampToValueAtTime(midFreq, now + duration * 0.4);
-    osc.frequency.linearRampToValueAtTime(endFreq, now + duration);
-
-    osc2.frequency.setValueAtTime(startFreq * 1.01, now);
-    osc2.frequency.linearRampToValueAtTime(midFreq * 1.01, now + duration * 0.4);
-    osc2.frequency.linearRampToValueAtTime(endFreq * 1.01, now + duration);
-
-    // Sweet vocalic bandpass filter sweep: High-to-Low creates "eee-ooo" nasal meow vowel transition!
-    filter.frequency.setValueAtTime(startFilterFreq, now);
-    filter.frequency.exponentialRampToValueAtTime(endFilterFreq, now + duration);
-
-    // Envelope
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.15, now + 0.04);
-    gain.gain.setValueAtTime(0.15, now + duration * 0.7);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-    osc.start(now);
-    osc2.start(now);
-    osc.stop(now + duration);
-    osc2.stop(now + duration);
+    audio.play().catch(err => {
+      console.warn("Audio playback blocked (user gesture may be required first):", err);
+    });
   } catch (e) {
-    console.error("Failed to play audio", e);
+    console.error("Failed to play meow sound", e);
   }
 };
 

@@ -23,7 +23,7 @@ export const Inventory: React.FC<InventoryProps> = ({
   const inventoryCats = cats.filter(cat => cat.gridX === null || cat.gridY === null);
 
   return (
-    <div className="relative p-6 bg-white rounded-[32px] border-2 border-art-border flex-1 max-w-full shadow-sm">
+    <div className="relative p-6 landscape:p-4 bg-white rounded-[32px] border-2 border-art-border flex-1 max-w-full shadow-sm">
       {/* Knit Blanket Texture Overlay */}
       <div 
         className="absolute inset-0 opacity-[0.02] pointer-events-none rounded-[32px]"
@@ -35,14 +35,14 @@ export const Inventory: React.FC<InventoryProps> = ({
       />
 
       {/* Decorative Blanket Label */}
-      <div className="absolute -top-3.5 left-6 bg-art-accent text-white font-sans text-[10px] uppercase tracking-widest font-black px-4 py-1 rounded-full shadow-md flex items-center gap-1.5 z-10 pointer-events-none select-none">
+      <div className="absolute -top-3.5 left-6 landscape:left-4 bg-art-accent text-white font-sans text-[10px] landscape:text-[9px] uppercase tracking-widest font-black px-4 py-1 landscape:py-0.5 rounded-full shadow-md flex items-center gap-1.5 z-10 pointer-events-none select-none">
         <Layers size={12} />
         <span>Inventario de Michis</span>
       </div>
 
-      <div className="flex flex-col h-full min-h-[160px]">
+      <div className="flex flex-col h-full min-h-[160px] landscape:min-h-[120px]">
         {inventoryCats.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-art-text/60">
+          <div className="flex-1 flex flex-col items-center justify-center text-center p-6 landscape:p-3 text-art-text/60">
             <svg viewBox="0 0 40 40" className="w-12 h-12 fill-art-accent/40 mb-2">
               <path d="M20 2a18 18 0 1 0 18 18A18 18 0 0 0 20 2zm0 32a14 14 0 1 1 14-14 14 14 0 0 1-14 14z" />
               <path d="M24 16a2 2 0 1 1-2-2 2 2 0 0 1 2 2zm-8 0a2 2 0 1 1-2-2 2 2 0 0 1 2 2zm11.24 9.42a1 1 0 0 1-1.35.34 7 7 0 0 0-7.78 0 1 1 0 0 1-1-.16 1 1 0 0 1-.35-1.18 9 9 0 0 1 11.48 1 1 0 0 1 0 1z" />
@@ -51,7 +51,7 @@ export const Inventory: React.FC<InventoryProps> = ({
             <p className="text-xs leading-relaxed max-w-xs mt-0.5">Mira qué cómodos están durmiendo juntos.</p>
           </div>
         ) : (
-          <div className="flex-1 flex flex-wrap items-center justify-center gap-10 p-4">
+          <div className="flex-1 flex flex-wrap items-center justify-center gap-10 landscape:gap-4 p-4 landscape:p-2">
             {inventoryCats.map((cat) => {
               const isBeingDragged = cat.id === draggedCatId;
               const isSelected = cat.id === selectedCatId;
