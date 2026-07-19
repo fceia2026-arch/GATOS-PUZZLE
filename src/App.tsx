@@ -15,8 +15,6 @@ import { Inventory } from './components/Inventory';
 import { canPlaceCat, getRotatedBlocks, isLevelSolved } from './utils/grid';
 import { SOLUTIONS } from './data/solutions';
 import {
-  playMeow,
-  playPurr,
   playSnap,
   playClick,
   playBump,
@@ -275,7 +273,7 @@ export default function App() {
       rotation: 0,
     }));
     setCats(resetCats);
-    playMeow('derp');
+    playClick();
   };
 
   // 6. Reset ALL Game Progress
@@ -284,7 +282,7 @@ export default function App() {
     setCompletedLevelIds([]);
     setCurrentLevelIdx(0);
     setShowCompleteModal(false);
-    playMeow('happy');
+    playClick();
     if (isSupabaseConnected) {
       syncProgressWithSupabase([]).catch(console.error);
     }
@@ -310,7 +308,6 @@ export default function App() {
 
     setCats(solvedCats);
     playSnap();
-    playMeow('happy');
     setShowSolutionModal(false);
 
     // Trigger completion slightly delayed for a clean transition
@@ -372,7 +369,7 @@ export default function App() {
           } else {
             // Does not fit! Try to find a nearby cell shift, or pop it back to inventory
             // Returning to inventory is a highly consistent and clean feedback
-            playMeow('derp');
+            playBump();
             return { ...tempRotatedCat, gridX: null, gridY: null };
           }
         }
@@ -380,12 +377,6 @@ export default function App() {
         // Cat is in the inventory, just rotate it
         return tempRotatedCat;
       });
-
-      if (isCorrectTransition) {
-        setTimeout(() => {
-          playMeow(rotatedCatFace);
-        }, 120);
-      }
 
       // Check if this solves the level!
       const solved = isLevelSolved(
@@ -456,13 +447,6 @@ export default function App() {
         c.id === catId ? { ...c, gridX: null, gridY: null } : c
       )
     );
-
-    // Play a gentle purr / meow on pickup
-    if (Math.random() > 0.5) {
-      playPurr();
-    } else {
-      playMeow(cat.style.faceExpression);
-    }
   };
 
   // 9. Pointer Move (Global)
@@ -576,17 +560,6 @@ export default function App() {
         currentLevel.obstacles,
         updatedCats
       );
-
-      // Play correct placement meow if placed on its correct solution coordinate and rotation
-      const solution = SOLUTIONS[currentLevel.id];
-      const sol = solution?.find((s) => s.catId === catId);
-      const isCorrectNow = sol && sol.gridX === targetRow && sol.gridY === targetCol && (draggedCat.rotation % 360) === (sol.rotation % 360);
-
-      if (isCorrectNow) {
-        setTimeout(() => {
-          playMeow(draggedCat.style.faceExpression || 'happy');
-        }, 150);
-      }
 
       if (solved) {
         // Complete Level!
